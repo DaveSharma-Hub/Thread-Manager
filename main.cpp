@@ -1,67 +1,6 @@
-// Online C++ compiler to run C++ program online
-#include <iostream>
-#include <vector>
-#include <thread>
-// #include <function>
+#include "FunctionThreadManager.cpp"
 
 using namespace std;
-
-struct Input{
-    uint64_t numberOfThreads;
-}typedef Input;
-
-struct ThreadIdx{
-    uint64_t maxThreads;
-}typedef ThreadIdx;
-
-class ThreadManager{
-    private:
-        Input config; 
-        std::vector<thread> currentThreads;
-        void (*kernelFunction)(uint64_t, ThreadIdx& ,void*, void*);
-        void* inputData;
-        void* outputData;
-        ThreadIdx threadConfig;
-    public:
-        ThreadManager(Input& threadManagerInput){
-            this->config = threadManagerInput;
-            this->threadConfig = {maxThreads:threadManagerInput.numberOfThreads};
-        }
-        
-        void runFunction(uint64_t id){
-            this->kernelFunction(id, this->threadConfig,this->inputData, this->outputData);
-        }
-        
-        void setKernelFunction(void (*func)(uint64_t,ThreadIdx& ,void*, void*)){
-            this->kernelFunction = func;
-        }
-        
-        void setInputData(void* input){
-            this->inputData = input;
-        }
-        
-        void setOutputData(void* output){
-            this->outputData = output;
-        }
-        
-        std::thread atomicThreadCreation(uint64_t id) {
-          return std::thread([=] { this->runFunction(id); });
-        }
-        
-        void startExecution(){
-            //check for input and output data being set
-            for(uint64_t i=0;i<config.numberOfThreads;i++){
-                uint64_t id = i;
-                currentThreads.push_back(move(atomicThreadCreation(id)));
-            }
-            
-            for(int i=0;i<this->currentThreads.size();i++){
-                this->currentThreads[i].join();
-            }
-        }
-};
-
-
 
 void kernel(uint64_t id, ThreadIdx& threadIdx, void* in, void* out){
     // std::cout<<id;
