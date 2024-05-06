@@ -1,4 +1,5 @@
-#include "FunctionThreadManager.cpp"
+#include "./FunctionThreadManager/FunctionThreadManager.cpp"
+#include "./AsyncThreadManager/AsyncThreadManager.cpp"
 
 using namespace std;
 
@@ -11,8 +12,22 @@ void kernel(uint64_t id, ThreadIdx& threadIdx, void* in, void* out){
     }
 }
 
-int main() {
-    // Write C++ code here
+
+void function(void){
+    sleep(5);
+    printf("DONE");
+}
+
+int asyncTest() {
+    AsyncThreadManager* manager = new AsyncThreadManager(function);
+    manager->runAsync()->await();
+    printf("Running");
+    sleep(5);
+    manager->await();
+    return 0;
+}
+
+int threadManagerTest(){
     void* input = new int[100];
     void* output = new int[100];
     
@@ -31,18 +46,10 @@ int main() {
         printf("%d\n",((int*)output)[i]);
     }
     
+}
+
+int main() {
+    // threadManagerTest();
+    asyncTest();
     return 0;
 }
-
-/*
-
-function kernelLevel(index, fn){
-    // do whatever you want in fn
-    fn(index);
-}
-
-function fn(index){
-    
-}
-
-*/
